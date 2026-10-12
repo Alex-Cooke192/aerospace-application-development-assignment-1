@@ -5,6 +5,16 @@ project( fuel_manager LANGUAGES CXX )
 set(CMAKE_CXX_STANDARD 26)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+include(FetchContent)
+
+FetchContent_Declare(
+    spdlog
+    GIT_REPOSITORY https://github.com/gabime/spdlog.git
+    GIT_TAG v1.15.3
+)
+
+FetchContent_MakeAvailable(spdlog)
+
 add_executable(fuel_management_system 
     src/main.cpp 
     src/sitl-sensors/fuel-sensor.cpp 
@@ -26,3 +36,8 @@ message(STATUS "C++ Compiler: ${CMAKE_CXX_COMPILER}")
 message(STATUS "C++ Compiler Version: ${CMAKE_CXX_COMPILER_VERSION}")
 
 target_compile_features( fuel_management_system PUBLIC cxx_std_26 ) # sets the C++ standard to C++26, as agreed in design report. 
+
+target_link_libraries(
+    fuel_management_system
+    PRIVATE spdlog::spdlog
+)

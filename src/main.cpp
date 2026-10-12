@@ -1,5 +1,7 @@
 #include <iostream>
 #include <thread>
+#include <spdlog/spdlog.h>
+#include <spdlog/sinks/basic_file_sink.h>
 
 #include "sitl-sensors/fuel-sensor.h"
 #include "sitl-sensors/air-speed-sensor.h"
@@ -22,11 +24,20 @@ int main()
     SensorHealthService sensorHealthService(eventBus);
     FuelDisplayService fuelDisplay(eventBus); 
 
+    // Initialise & connect logger
+    auto logger = spdlog::basic_logger_mt("fuel_logger", "fuel_system.log");
+
+    logger->flush_on(spdlog::level::info);
+
+    logger->info("Fuel Management System started");
+
     bool running = true;
 
     std::thread sensorThread([&]() {
         while (running) {
             fuelService.SetFuelRangeFlag(false);
+
+            logger->info("Updating Sensor Readings...");
             std::cout << "=========FUEL LOG=========" << std::endl;
             airSpeedSensor.GetData();
             fuelSensor.GetData();
@@ -41,6 +52,7 @@ int main()
         std::getline(std::cin, command);
 
         if (command == "quit") {
+            logger->info("User Requested Shutdown");
             running = false;
         }
     }
